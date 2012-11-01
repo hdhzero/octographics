@@ -5,6 +5,8 @@
 #include <fstream>
 #include "Color.h"
 
+namespace OctoGraphics {
+
 class Image {
     private:
         int width;
@@ -23,5 +25,7 @@ class Image {
         void save(std::string filename);
         void open(std::string filename);
 };
+
+}
 
 #endif

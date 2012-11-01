@@ -1,28 +1,28 @@
 #include "Color.h"
 
-int Color::get_red() { 
+int OctoGraphics::Color::get_red() { 
     return red; 
 }
 
-int Color::get_green() { 
+int OctoGraphics::Color::get_green() { 
     return green; 
 }
 
-int Color::get_blue() { 
+int OctoGraphics::Color::get_blue() { 
     return blue; 
 }
 
-int Color::get_alpha() { 
+int OctoGraphics::Color::get_alpha() { 
     return alpha; 
 }
 
-void Color::set_rgb(int r, int g, int b) {
+void OctoGraphics::Color::set_rgb(int r, int g, int b) {
     red = r;
     green = g;
     blue = b;
 }
 
-void Color::set_color(Color& c) {
+void OctoGraphics::Color::set_color(Color& c) {
     alpha = c.alpha;
     red = c.red;
     green = c.green;

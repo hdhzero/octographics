@@ -1,6 +1,6 @@
 #include "Image.h"
 
-void Image::alloc(int w, int h) {
+void OctoGraphics::Image::alloc(int w, int h) {
     int i;
     int j;
 
@@ -24,7 +24,7 @@ void Image::alloc(int w, int h) {
     }
 }
 
-Image::Image(int w, int h) {
+OctoGraphics::Image::Image(int w, int h) {
     drawing = NULL;
     width = -1;
     height = -1;
@@ -32,11 +32,11 @@ Image::Image(int w, int h) {
     alloc(w, h);
 }
 
-void Image::set_pixel(int i, int j, Color& c) {
+void OctoGraphics::Image::set_pixel(int i, int j, Color& c) {
     drawing[i][j].set_color(c);
 }
 
-void Image::clear(Color& c) {
+void OctoGraphics::Image::clear(Color& c) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             drawing[i][j].set_color(c);
@@ -44,7 +44,7 @@ void Image::clear(Color& c) {
     }
 }
 
-void Image::save(std::string filename) {
+void OctoGraphics::Image::save(std::string filename) {
     std::ofstream file;
     file.open(filename.c_str());
 
@@ -66,7 +66,7 @@ void Image::save(std::string filename) {
 }
 
 
-void Image::open(std::string filename) {
+void OctoGraphics::Image::open(std::string filename) {
     std::ifstream file;
     std::string tmp;
     int w, h, t;

@@ -173,6 +173,9 @@ void lineBresenham(int p1x, int p1y, int p2x, int p2y)
     }
 }
 */
+
+using namespace OctoGraphics;
+
 int main() {
     Color c;
     Image img(700, 500);
