@@ -1,5 +1,5 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef OCTOGRAPHICS_COLOR_H
+#define OCTOGRAPHICS_COLOR_H
 
 namespace OctoGraphics {
 

@@ -1,8 +1,9 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef OCTOGRAPHICS_IMAGE_H
+#define OCTOGRAPHICS_IMAGE_H
 
 #include <sstream>
 #include <fstream>
+#include <vector>
 #include "Color.h"
 
 namespace OctoGraphics {
@@ -11,11 +12,10 @@ class Image {
     private:
         int width;
         int height;
-        Color** drawing;
+        std::vector<std::vector<Color> > drawing;
 
     private:
         void alloc(int w, int h);
-
     public:
         Image(int w, int h);
 

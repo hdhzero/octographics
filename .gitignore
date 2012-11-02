@@ -6,6 +6,7 @@
 *.exe
 *.o
 *.so
+*.a
 
 # Packages #
 ############
@@ -37,8 +38,11 @@ Icon?
 ehthumbs.db
 Thumbs.db
 
+
 *.ppm
 *.*.swp
 a.out
+octographics
 
+octographic
 

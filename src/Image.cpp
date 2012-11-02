@@ -1,35 +1,18 @@
 #include "Image.h"
 
-void OctoGraphics::Image::alloc(int w, int h) {
-    int i;
-    int j;
-
-    if (width == w && height != h && drawing != NULL) {
-        return;
-    }
-
-    if (drawing != NULL) {
-        for (i = 0; i < height; ++i)
-            delete[] drawing[i];
-
-        delete[] drawing;
-    }
-
-    width = w;
-    height = h;
-    drawing = new Color*[height];
-
-    for (i = 0; i < height; ++i) {
-        drawing[i] = new Color[width];
-    }
+OctoGraphics::Image::Image(int w, int h) {
+    alloc(w, h);
 }
 
-OctoGraphics::Image::Image(int w, int h) {
-    drawing = NULL;
-    width = -1;
-    height = -1;
+void OctoGraphics::Image::alloc(int w, int h) {
+    width = w;
+    height = h;
 
-    alloc(w, h);
+    drawing.resize(height);
+
+    for (int i = 0; i < height; ++i) {
+        drawing[i].resize(width);
+    }
 }
 
 void OctoGraphics::Image::set_pixel(int i, int j, Color& c) {
