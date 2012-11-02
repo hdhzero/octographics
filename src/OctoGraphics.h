@@ -4,5 +4,6 @@
 #include "Color.h"
 #include "Image.h"
 #include "Vector2D.h"
+#include "Vector.h"
 
 #endif
