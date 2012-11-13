@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Color.h"
-#include "Image.h"
 #include "Vertex.h"
+#include "Image.h"
 
 #endif
