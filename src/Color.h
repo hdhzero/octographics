@@ -16,7 +16,7 @@ class Color {
         int get_blue();
         int get_alpha();
         void set_rgb(int r, int g, int b);
-        void set_color(OctoGraphics::Color& c);
+        void set_color(Color& c);
 };
 
 }

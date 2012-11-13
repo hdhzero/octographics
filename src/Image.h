@@ -1,10 +1,7 @@
 #ifndef OCTOGRAPHICS_IMAGE_H
 #define OCTOGRAPHICS_IMAGE_H
 
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include "Color.h"
+#include "OctoGraphics.h"
 
 namespace OctoGraphics {
 
