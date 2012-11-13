@@ -7,6 +7,7 @@
 
 #include "Color.h"
 #include "Vertex.h"
+#include "Matrix.h"
 #include "Image.h"
 
 #endif
