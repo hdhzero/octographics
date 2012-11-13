@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <cmath>
 
 #include "Color.h"
 #include "Vertex.h"

@@ -25,6 +25,14 @@ void Matrix::multiply(float a[4][4]) {
     }
 }
 
+void Matrix::set_identity(float a[4][4]) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            a[i][j] = i == j ? 1 : 0;
+        }
+    }
+}
+
 Vertex Matrix::apply(const Vertex& vertex) const {
     Vertex tmp;
 
@@ -39,12 +47,60 @@ Vertex Matrix::apply(const Vertex& vertex) const {
     return tmp;
 }
 
+
 void Matrix::identity() {
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            m[i][j] = i == j ? 1 : 0;
-        }
-    }
+    set_identity(m);
+}
+
+void Matrix::translate(float x, float y, float z) {
+    float tmp[4][4];
+
+    set_identity(tmp);
+    tmp[0][3] = x;
+    tmp[1][3] = y;
+    tmp[2][3] = z;
+
+    multiply(tmp);
+}
+
+void Matrix::scale(float x, float y, float z) {
+    float tmp[4][4];
+
+    set_identity(tmp);
+    tmp[0][0] = x;
+    tmp[1][1] = y;
+    tmp[2][2] = z;
+
+    multiply(tmp);
+}
+
+void Matrix::rotate(float x, float y, float z) {
+    float rz[4][4];
+    float rx[4][4];
+    float ry[4][4];
+
+    set_identity(rz);
+    set_identity(rx);
+    set_identity(ry);
+
+    rz[0][0] = cos(z);
+    rz[0][1] = -sin(z);
+    rz[1][0] = sin(z);
+    rz[1][1] = cos(z);
+
+    rx[1][1] = cos(x);
+    rx[1][2] = -sin(x);
+    rx[2][1] = sin(x);
+    rx[2][2] = cos(x);
+
+    ry[0][0] = cos(y);
+    ry[0][2] = sin(y);
+    ry[2][0] = -sin(y);
+    ry[2][2] = cos(y);
+
+    multiply(rz);
+    multiply(rx);
+    multiply(ry);
 }
 
 } //End of namespace
