@@ -7,4 +7,4 @@ all:
 	g++ octographics.cpp octographics.a -o octographics -lX11
 
 clean:
-	rm -rf *.o *.a *.ppm octographics
+	rm -rf *.o *.a *.ppm octographics a.out

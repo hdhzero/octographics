@@ -2,6 +2,7 @@
 #define OCTOGRAPHICS_IMAGE_H
 
 #include "OctoGraphics.h"
+#include <X11/Xlib.h>
 
 namespace OctoGraphics {
 
@@ -28,6 +29,7 @@ class Image {
 
     public:
         void draw_simple_line(const Vertex& v1, const Vertex& v2);
+        void render_to_X(Display*& display, Window& drawable, int s);
 };
 
 }

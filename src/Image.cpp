@@ -230,5 +230,15 @@ void Image::draw_simple_line(const Vertex& v1, const Vertex& v2) {
     }
 }
 
+void Image::render_to_X(Display*& display, Window& drawable, int s) {
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if (drawing[i][j].get_red() == 0) {
+                XDrawPoint(display, drawable, DefaultGC(display, s), i, j);
+            }
+        }
+    }
+}
+
 } //End of namespace
 
