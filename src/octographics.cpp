@@ -56,7 +56,12 @@ int main(int argc, char** argv) {
  
         /* exit on key press */
         if (event.type == KeyPress && f == 1) {
-            v[0]++;
+            // cat /usr/include/X11/keysymdef.h | less
+
+            if (XLookupKeysym(&event.xkey, 0) == 0xff52)
+                v[0]++;
+            else
+                v[0]--;
             std::cout << "ak: " << v[0] << std::endl;
 
             color.set_rgb(100, 100, 100);
