@@ -4,7 +4,7 @@ all:
 	g++ -c Matrix.cpp
 	g++ -c Image.cpp
 	ar rvs octographics.a Color.o Vertex.o Matrix.o Image.o
-	g++ octographics.cpp octographics.a -o octographics
+	g++ octographics.cpp octographics.a -o octographics -lX11
 
 clean:
 	rm -rf *.o *.a *.ppm octographics

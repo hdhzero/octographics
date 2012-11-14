@@ -103,4 +103,31 @@ void Matrix::rotate(float x, float y, float z) {
     multiply(ry);
 }
 
+void Matrix::viewport(int width, int height) {
+    float tmp[4][4];
+
+    set_identity(tmp);
+    tmp[0][0] = width / 2;
+    tmp[1][1] = height / 2;
+    tmp[0][3] = (width - 1) / 2;
+    tmp[1][3] = (height - 1) / 2;
+
+    multiply(tmp);
+}
+
+void Matrix::orthographic(float l, float r, float b, float t, float n, float f) {
+    float tmp[4][4];
+
+    set_identity(tmp);
+
+    tmp[0][0] = 2.0 / (r - l);
+    tmp[1][1] = 2.0 / (t - b);
+    tmp[2][2] = 2.0 / (n - f);
+    tmp[0][3] = -(r + l) / (r - l);
+    tmp[1][3] = -(t + b) / (t - b);
+    tmp[2][3] = -(n + f) / (n - f);
+
+    multiply(tmp);
+}
+
 } //End of namespace

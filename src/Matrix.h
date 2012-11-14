@@ -19,6 +19,9 @@ class Matrix {
         void translate(float x, float y, float z);
         void scale(float x, float y, float z);
         void rotate(float x, float y, float z);
+
+        void viewport(int width, int height);
+        void orthographic(float l, float r, float b, float t, float n, float f);
         
 };
 
