@@ -52,6 +52,15 @@ void Matrix::identity() {
     set_identity(m);
 }
 
+void Matrix::print() {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            std::cout << m[i][j] << ' ';
+        }
+        std::cout << std::endl;
+    }
+}
+
 void Matrix::translate(float x, float y, float z) {
     float tmp[4][4];
 
@@ -128,6 +137,38 @@ void Matrix::orthographic(float l, float r, float b, float t, float n, float f) 
     tmp[2][3] = -(n + f) / (n - f);
 
     multiply(tmp);
+}
+
+void Matrix::camera(Vertex& eye, Vertex& gaze, Vertex& view_up) {
+    float tmp[4][4];
+    float tmp2[4][4];
+    Vertex w = gaze / gaze.length();
+    Vertex a = view_up.cross(w);
+    Vertex u = a / a.length();
+    Vertex v = w.cross(u);
+
+    set_identity(tmp);
+    set_identity(tmp2);
+
+    tmp[0][0] = u[0];
+    tmp[0][1] = u[1];
+    tmp[0][2] = u[2];
+
+    tmp[1][0] = v[0];
+    tmp[1][1] = v[1];
+    tmp[1][2] = v[2];
+
+    tmp[2][0] = w[0];
+    tmp[2][1] = w[1];
+    tmp[2][2] = w[2];
+
+    tmp2[0][3] = -eye[0];
+    tmp2[1][3] = -eye[1];
+    tmp2[2][3] = -eye[2];
+
+    multiply(tmp2);
+    multiply(tmp);
+
 }
 
 } //End of namespace

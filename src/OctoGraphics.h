@@ -1,6 +1,7 @@
 #ifndef OCTOGRAPHICS_H
 #define OCTOGRAPHICS_H
 
+#include <iostream>
 #include <sstream>
 #include <fstream>
 #include <vector>

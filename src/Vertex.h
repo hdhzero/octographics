@@ -24,6 +24,9 @@ class Vertex {
         Vertex operator+(const Vertex& vertex) const;
         Vertex operator-(const Vertex& vertex) const;
         float operator*(const Vertex& vertex) const;
+        float length();
+
+        Vertex cross(const Vertex& vertex) const;
 
         Vertex operator*(float t) const;
         Vertex operator/(float t) const;
