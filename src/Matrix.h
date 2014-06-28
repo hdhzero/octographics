@@ -27,5 +27,5 @@ class Matrix {
         
 };
 
-} //End of namespace
+} // End of namespace
 #endif
