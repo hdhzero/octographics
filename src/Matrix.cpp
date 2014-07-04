@@ -164,7 +164,11 @@ void Matrix::frustum(Fixed l, Fixed r, Fixed b, Fixed t, Fixed n, Fixed f) {
 void Matrix::camera(Vertex& eye, Vertex& gaze, Vertex& view_up) {
     Fixed tmp[4][4];
     Fixed tmp2[4][4];
-    Vertex w = gaze / gaze.length();
+
+    Vertex g = eye - gaze;
+    Vertex w = g / g.length();
+    w = -w;
+
     Vertex a = view_up.cross(w);
     Vertex u = a / a.length();
     Vertex v = w.cross(u);

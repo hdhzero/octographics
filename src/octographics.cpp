@@ -222,7 +222,7 @@ int main(int argc, char** argv) {
             //m.translate(100.0, 100.0, 0.0);
 //            m.translate(gaze[0].to_float(), gaze[1].to_float(), gaze[2].to_float());
             //m.print();
-            m.camera2(eye, gaze, view_up);
+            m.camera(eye, gaze, view_up);
             //m.print();
             m.orthographic(20.0, -20.0, 15.0, -15.0, -10, -100);
            //m.print();
