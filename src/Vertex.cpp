@@ -2,68 +2,91 @@
 
 namespace OctoGraphics {
 
-Vertex::Vertex(float x, float y, float z, float w) {
+Vertex::Vertex() {
+    Fixed a(0.0);
+
+    c[0] = a;
+    c[1] = a;
+    c[2] = a;
+    c[3] = a;
+}
+
+Vertex::Vertex(Fixed x, Fixed y, Fixed z, Fixed w) {
     c[0] = x;
     c[1] = y;
     c[2] = z;
     c[3] = w;
 }
 
-float& Vertex::operator[](int idx) {
+Vertex::Vertex(double x, double y, double z, double w) {
+    c[0] = Fixed(x);
+    c[1] = Fixed(y);
+    c[2] = Fixed(z);
+    c[3] = Fixed(w);
+}
+
+Fixed& Vertex::operator[](int idx) {
     return c[idx];
 }
 
-const float& Vertex::operator[](int idx) const {
+const Fixed& Vertex::operator[](int idx) const {
     return c[idx];
 }
 
 Vertex& Vertex::operator+=(const Vertex& vertex) {
-    c[0] += vertex.c[0];
-    c[1] += vertex.c[1];
-    c[2] += vertex.c[2];
-    c[3] += vertex.c[3];
+    c[0] = c[0] + vertex.c[0];
+    c[1] = c[1] + vertex.c[1];
+    c[2] = c[2] + vertex.c[2];
 
     return (*this);
 }
 
 Vertex& Vertex::operator-=(const Vertex& vertex) {
-    c[0] -= vertex.c[0];
-    c[1] -= vertex.c[1];
-    c[2] -= vertex.c[2];
-    c[3] -= vertex.c[3];
+    c[0] = c[0] - vertex.c[0];
+    c[1] = c[1] - vertex.c[1];
+    c[2] = c[2] - vertex.c[2];
 
     return (*this);
 }
 
-Vertex& Vertex::operator*=(float t) {
-    c[0] *= t;
-    c[1] *= t;
-    c[2] *= t;
-    c[3] *= t;
+Vertex& Vertex::operator*=(Fixed t) {
+    c[0] = c[0] * t;
+    c[1] = c[1] * t;
+    c[2] = c[2] * t;
 
     return (*this);
 }
 
-Vertex& Vertex::operator/=(float t) {
-    c[0] /= t;
-    c[1] /= t;
-    c[2] /= t;
-    c[3] /= t;
+Vertex& Vertex::operator/=(Fixed t) {
+    c[0] = c[0] / t;
+    c[1] = c[1] / t;
+    c[2] = c[2] / t;
 
     return (*this);
 }
 
 Vertex Vertex::operator-() const {
-    return Vertex(-c[0], -c[1], -c[2], -c[3]);
+    Fixed a(-c[0].num);
+    Fixed b(-c[1].num);
+    Fixed cc(-c[2].num);
+    Fixed d(c[3].num);
+
+    return Vertex(a, b, cc, d);
 }
 
 Vertex Vertex::operator+(const Vertex& vertex) const {
     Vertex tmp;
+    Fixed f = c[3] + vertex[3];
 
     tmp[0] = c[0] + vertex[0];
     tmp[1] = c[1] + vertex[1];
     tmp[2] = c[2] + vertex[2];
-    tmp[3] = c[3] + vertex[3];
+
+    if (f.to_float() >= 1) {
+        tmp[3] = Fixed(1.0);
+    } else {
+        tmp[3] = Fixed(0.0);
+    }
 
     return tmp;
 }
@@ -74,17 +97,16 @@ Vertex Vertex::operator-(const Vertex& vertex) const {
     tmp[0] = c[0] - vertex[0];
     tmp[1] = c[1] - vertex[1];
     tmp[2] = c[2] - vertex[2];
-    tmp[3] = c[3] - vertex[3];
+    tmp[3] = Fixed(0.0);
 
     return tmp;
 }
 
-float Vertex::operator*(const Vertex& vertex) const {
-    float tmp = c[0] * vertex[0];
+Fixed Vertex::operator*(const Vertex& vertex) const {
+    Fixed tmp = c[0] * vertex[0];
 
-    tmp += c[1] * vertex[1];
-    tmp += c[2] * vertex[2];
-    tmp += c[3] * vertex[3];
+    tmp = tmp + c[1] * vertex[1];
+    tmp = tmp + c[2] * vertex[2];
 
     return tmp;
 }
@@ -105,46 +127,44 @@ Vertex Vertex::cross(const Vertex& vertex) const {
     return tmp;
 }
 
-float Vertex::length() {
-    float tmp = 0.0;
+Fixed Vertex::length() {
+    Fixed tmp(0.0);
 
     for (int i = 0; i < 3; ++i) {
-        tmp += c[i] * c[i];
+        tmp = tmp + c[i] * c[i];
     }
 
-    return sqrt(tmp);
+    return Fixed(sqrt(tmp.to_float()));
 }
 
-Vertex Vertex::operator*(float t) const {
+Vertex Vertex::operator*(Fixed t) const {
     Vertex tmp;
 
     tmp[0] = c[0] * t;
     tmp[1] = c[1] * t;
     tmp[2] = c[2] * t;
-    tmp[3] = c[3] * t;
 
     return tmp;
 }
 
-Vertex Vertex::operator/(float t) const {
+Vertex Vertex::operator/(Fixed t) const {
     Vertex tmp;
 
     tmp[0] = c[0] / t;
     tmp[1] = c[1] / t;
     tmp[2] = c[2] / t;
-    tmp[3] = c[3] / t;
 
     return tmp;
 }
 
 bool Vertex::operator==(const Vertex& vertex) const {
-    return c[0] == vertex[0] && c[1] == vertex[1]
-        && c[2] == vertex[2] && c[3] == vertex[3];
+    return c[0].num == vertex[0].num && c[1].num == vertex[1].num
+        && c[2].num == vertex[2].num && c[3].num == vertex[3].num;
 }
 
 bool Vertex::operator!=(const Vertex& vertex) const {
-    return !(c[0] == vertex[0] && c[1] == vertex[1]
-        && c[2] == vertex[2] && c[3] == vertex[3]);
+    return !(c[0].num == vertex[0].num && c[1].num == vertex[1].num
+        && c[2].num == vertex[2].num && c[3].num == vertex[3].num);
 }
 
 }

@@ -1,35 +1,37 @@
-#ifndef OCTOGRAPHICS_VERTEX_H
-#define OCTOGRAPHICS_VERTEX_H
+#ifndef OCTOGRAPHICS_VERTEX_FIXED_H
+#define OCTOGRAPHICS_VERTEX_FIXED_H
 
 namespace OctoGraphics {
 
 class Vertex {
     private:
-        float c[4];
+        Fixed c[4];
 
     public:
-        Vertex(float x=0.0, float y=0.0, float z=0.0, float w=0.0);
+        Vertex();
+        Vertex(Fixed x, Fixed y, Fixed z, Fixed w);
+        Vertex(double x, double y = 0.0, double z = 0.0, double w = 0.0);
 
     public:
-        float& operator[](int idx);
-        const float& operator[](int idx) const;
+        Fixed& operator[](int idx);
+        const Fixed& operator[](int idx) const;
 
         Vertex& operator+=(const Vertex& vertex);
         Vertex& operator-=(const Vertex& vertex);
 
-        Vertex& operator*=(float t);
-        Vertex& operator/=(float t);
+        Vertex& operator*=(Fixed t);
+        Vertex& operator/=(Fixed t);
 
         Vertex operator-() const;
         Vertex operator+(const Vertex& vertex) const;
         Vertex operator-(const Vertex& vertex) const;
-        float operator*(const Vertex& vertex) const;
-        float length();
+        Fixed operator*(const Vertex& vertex) const;
+        Fixed length();
 
         Vertex cross(const Vertex& vertex) const;
 
-        Vertex operator*(float t) const;
-        Vertex operator/(float t) const;
+        Vertex operator*(Fixed t) const;
+        Vertex operator/(Fixed t) const;
 
         bool operator==(const Vertex& vertex) const;
         bool operator!=(const Vertex& vertex) const;

@@ -7,6 +7,7 @@
 #include <vector>
 #include <cmath>
 
+#include "Fixed.h"
 #include "Color.h"
 #include "Vertex.h"
 #include "Matrix.h"

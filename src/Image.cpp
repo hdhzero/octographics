@@ -18,11 +18,13 @@ void Image::alloc(int w, int h) {
 }
 
 void Image::setPixel(int x, int y) {
-    drawing[x][y] = color;
+    if (x >= 0 && x < width && y >= 0 && y < height)
+    drawing[y][x] = color;
 
 }
 
 void Image::set_pixel(int i, int j, Color& c) {
+    if (i >= 0 && i < height && j >= 0 && j < width)
     drawing[i][j].set_color(c);
 }
 
@@ -78,12 +80,19 @@ void Image::open(std::string filename) {
 }
 
 void Image::draw_simple_line(const Vertex& v1, const Vertex& v2) {
-    int p1x = v1[0];
-    int p1y = v1[1];
-    int p2x = v2[0];
-    int p2y = v2[1];
+    Fixed a0 = v1[0];
+    Fixed a1 = v1[1];
+    Fixed a2 = v2[0];
+    Fixed a3 = v2[1];
+
+    int p1x = a0.to_float();
+    int p1y = a1.to_float();
+    int p2x = a2.to_float();
+    int p2y = a3.to_float();
 
     int F, x, y;
+    std::cout << "points: " << p1x << ' ' << p1y 
+        << ' ' << p2x << ' ' << p2y << '\n';
 
     if (p1x > p2x)  // Swap points if p1 is on the right of p2
     {
@@ -229,6 +238,7 @@ void Image::draw_simple_line(const Vertex& v1, const Vertex& v2) {
         }
     }
 }
+
 
 void Image::render_to_X(Display*& display, Window& drawable, int s) {
     for (int i = 0; i < height; ++i) {

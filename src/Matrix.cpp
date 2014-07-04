@@ -2,18 +2,18 @@
 
 namespace OctoGraphics {
 
-void Matrix::multiply(float a[4][4]) {
+void Matrix::multiply(Fixed a[4][4]) {
     int i;
     int j;
     int k;
-    float t[4][4];
+    Fixed t[4][4];
 
     for (i = 0; i < 4; ++i) {
         for (j = 0; j < 4; ++j) {
             t[i][j] = 0.0;
 
             for (k = 0; k < 4; ++k) {
-                t[i][j] += a[i][k] * m[k][j];
+                t[i][j] = t[i][j] + a[i][k] * m[k][j];
             }
         }
     }
@@ -25,22 +25,26 @@ void Matrix::multiply(float a[4][4]) {
     }
 }
 
-void Matrix::set_identity(float a[4][4]) {
+void Matrix::set_identity(Fixed a[4][4]) {
+    Fixed aa(1.0);
+    Fixed bb(0.0);
+
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            a[i][j] = i == j ? 1 : 0;
+            a[i][j] = i == j ? aa : bb;
         }
     }
 }
 
 Vertex Matrix::apply(const Vertex& vertex) const {
     Vertex tmp;
+    Fixed bb(0.0);
 
     for (int i = 0; i < 4; ++i) {
-        tmp[i] = 0.0;
+        tmp[i] = bb;
 
         for (int j = 0; j < 4; ++j) {
-            tmp[i] += vertex[j] * m[i][j];
+            tmp[i] = tmp[i] + vertex[j] * m[i][j];
         }
     }
 
@@ -55,14 +59,14 @@ void Matrix::identity() {
 void Matrix::print() {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            std::cout << m[i][j] << ' ';
+            std::cout << m[i][j].to_float() << ' ';
         }
         std::cout << std::endl;
     }
 }
 
-void Matrix::translate(float x, float y, float z) {
-    float tmp[4][4];
+void Matrix::translate(Fixed x, Fixed y, Fixed z) {
+    Fixed tmp[4][4];
 
     set_identity(tmp);
     tmp[0][3] = x;
@@ -72,8 +76,8 @@ void Matrix::translate(float x, float y, float z) {
     multiply(tmp);
 }
 
-void Matrix::scale(float x, float y, float z) {
-    float tmp[4][4];
+void Matrix::scale(Fixed x, Fixed y, Fixed z) {
+    Fixed tmp[4][4];
 
     set_identity(tmp);
     tmp[0][0] = x;
@@ -83,29 +87,29 @@ void Matrix::scale(float x, float y, float z) {
     multiply(tmp);
 }
 
-void Matrix::rotate(float x, float y, float z) {
-    float rz[4][4];
-    float rx[4][4];
-    float ry[4][4];
+void Matrix::rotate(Fixed x, Fixed y, Fixed z) {
+    Fixed rz[4][4];
+    Fixed rx[4][4];
+    Fixed ry[4][4];
 
     set_identity(rz);
     set_identity(rx);
     set_identity(ry);
 
-    rz[0][0] = cos(z);
-    rz[0][1] = -sin(z);
-    rz[1][0] = sin(z);
-    rz[1][1] = cos(z);
+    rz[0][0] = Fixed(cos(z.to_float()));
+    rz[0][1] = Fixed(-sin(z.to_float()));
+    rz[1][0] = Fixed(sin(z.to_float()));
+    rz[1][1] = Fixed(cos(z.to_float()));
 
-    rx[1][1] = cos(x);
-    rx[1][2] = -sin(x);
-    rx[2][1] = sin(x);
-    rx[2][2] = cos(x);
+    rx[1][1] = Fixed(cos(x.to_float()));
+    rx[1][2] = Fixed(-sin(x.to_float()));
+    rx[2][1] = Fixed(sin(x.to_float()));
+    rx[2][2] = Fixed(cos(x.to_float()));
 
-    ry[0][0] = cos(y);
-    ry[0][2] = sin(y);
-    ry[2][0] = -sin(y);
-    ry[2][2] = cos(y);
+    ry[0][0] = Fixed(cos(y.to_float()));
+    ry[0][2] = Fixed(sin(y.to_float()));
+    ry[2][0] = Fixed(-sin(y.to_float()));
+    ry[2][2] = Fixed(cos(y.to_float()));
 
     multiply(rz);
     multiply(rx);
@@ -113,25 +117,25 @@ void Matrix::rotate(float x, float y, float z) {
 }
 
 void Matrix::viewport(int width, int height) {
-    float tmp[4][4];
+    Fixed tmp[4][4];
 
     set_identity(tmp);
-    tmp[0][0] = width / 2;
-    tmp[1][1] = height / 2;
-    tmp[0][3] = (width - 1) / 2;
-    tmp[1][3] = (height - 1) / 2;
+    tmp[0][0] = Fixed((float) width) / Fixed(2.0);
+    tmp[1][1] = Fixed((float) height) / Fixed(2.0);
+    tmp[0][3] = Fixed(width - 1.0) / Fixed(2.0);
+    tmp[1][3] = Fixed((height - 1.0)) / Fixed(2.0);
 
     multiply(tmp);
 }
 
-void Matrix::orthographic(float l, float r, float b, float t, float n, float f) {
-    float tmp[4][4];
+void Matrix::orthographic(Fixed l, Fixed r, Fixed b, Fixed t, Fixed n, Fixed f) {
+    Fixed tmp[4][4];
 
     set_identity(tmp);
 
-    tmp[0][0] = 2.0 / (r - l);
-    tmp[1][1] = 2.0 / (t - b);
-    tmp[2][2] = 2.0 / (n - f);
+    tmp[0][0] = Fixed(2.0) / (r - l);
+    tmp[1][1] = Fixed(2.0) / (t - b);
+    tmp[2][2] = Fixed(2.0) / (n - f);
     tmp[0][3] = -(r + l) / (r - l);
     tmp[1][3] = -(t + b) / (t - b);
     tmp[2][3] = -(n + f) / (n - f);
@@ -139,9 +143,27 @@ void Matrix::orthographic(float l, float r, float b, float t, float n, float f) 
     multiply(tmp);
 }
 
+void Matrix::frustum(Fixed l, Fixed r, Fixed b, Fixed t, Fixed n, Fixed f) {
+	Fixed tmp[4][4];
+
+	set_identity(tmp);
+
+	tmp[0][0] = (Fixed(2.0) * n) / (r - l);
+	tmp[0][2] = (l + r) / (l - r);
+	tmp[1][1] = (Fixed(2.0) * n) / (t - b);
+	tmp[1][2] = (b + t) / (b - t);
+	tmp[2][2] = (f + n) / (n - f);
+	tmp[2][3] = (Fixed(2.0) * f * n) / (f - n);
+	tmp[3][2] = 1;
+	tmp[3][3] = 0;
+
+	multiply(tmp);
+}
+
+
 void Matrix::camera(Vertex& eye, Vertex& gaze, Vertex& view_up) {
-    float tmp[4][4];
-    float tmp2[4][4];
+    Fixed tmp[4][4];
+    Fixed tmp2[4][4];
     Vertex w = gaze / gaze.length();
     Vertex a = view_up.cross(w);
     Vertex u = a / a.length();
@@ -168,7 +190,41 @@ void Matrix::camera(Vertex& eye, Vertex& gaze, Vertex& view_up) {
 
     multiply(tmp2);
     multiply(tmp);
-
 }
+
+void Matrix::camera2(Vertex& eye, Vertex& gaze, Vertex& view_up) {
+    Fixed tmp[4][4];
+    Fixed tmp2[4][4];
+
+    Vertex f = eye - gaze;
+    Vertex fn = f / f.length();
+    Vertex un = view_up / view_up.length();
+    Vertex s = fn.cross(un);
+    Vertex sn = s / s.length();
+    Vertex u = sn.cross(fn);
+
+    set_identity(tmp);
+    set_identity(tmp2);
+
+    tmp[0][0] = s[0];
+    tmp[0][1] = s[1];
+    tmp[0][2] = s[2];
+
+    tmp[1][0] = u[0];
+    tmp[1][1] = u[1];
+    tmp[1][2] = u[2];
+
+    tmp[2][0] = -f[0];
+    tmp[2][1] = -f[1];
+    tmp[2][2] = -f[2];
+
+    tmp2[0][3] = -eye[0];
+    tmp2[1][3] = -eye[1];
+    tmp2[2][3] = -eye[2];
+
+    multiply(tmp2);
+    multiply(tmp);
+}
+
 
 } //End of namespace
