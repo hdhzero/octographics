@@ -80,10 +80,10 @@ void Image::open(std::string filename) {
 }
 
 void Image::draw_simple_line(const Vertex& v1, const Vertex& v2) {
-    Fixed a0 = v1[0];
-    Fixed a1 = v1[1];
-    Fixed a2 = v2[0];
-    Fixed a3 = v2[1];
+    Fixed a0 = v1[0] / v1[3];
+    Fixed a1 = v1[1] / v1[3];
+    Fixed a2 = v2[0] / v2[3];
+    Fixed a3 = v2[1] / v2[3];
 
     int p1x = a0.to_float();
     int p1y = a1.to_float();
@@ -244,7 +244,7 @@ void Image::render_to_X(Display*& display, Window& drawable, int s) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             if (drawing[i][j].get_red() == 0) {
-                XDrawPoint(display, drawable, DefaultGC(display, s), i, j);
+                XDrawPoint(display, drawable, DefaultGC(display, s), j, i);
             }
         }
     }

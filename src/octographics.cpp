@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
     OctoGraphics::Vertex Z(0, 0, 100.0, 1);
 
     OctoGraphics::Vertex w(0, 0, 0, 1);
-    OctoGraphics::Vertex eye(10.0, 10.0, 10.0, 1);
+    OctoGraphics::Vertex eye(20.0, 20.0, 20.0, 1);
     OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1);
     OctoGraphics::Vertex view_up(0.0, 1.0, 0.0, 0.0);
     OctoGraphics::Matrix m, mm;
@@ -109,7 +109,9 @@ int main(int argc, char** argv) {
     int obj;
     int op;
     int coord;
-    OctoGraphics::Fixed um(1.2);
+    OctoGraphics::Fixed um(0.001);
+    OctoGraphics::Fixed major(1.0);
+    OctoGraphics::Fixed minor(0.001);
 
     /* event loop */
 
@@ -128,6 +130,8 @@ int main(int argc, char** argv) {
             if (k('x')) { coord = 0; }
             if (k('y')) { coord = 1; }
             if (k('z')) { coord = 2; }
+            if (k('o')) { um = Fixed(1.0); }//major; }
+            if (k('p')) { um = Fixed(0.001); } //minor; }
             if (k('q')) { break; }
 
             if (k('w')) {
@@ -224,7 +228,9 @@ int main(int argc, char** argv) {
             //m.print();
             m.camera(eye, gaze, view_up);
             //m.print();
-            m.orthographic(20.0, -20.0, 15.0, -15.0, -10, -100);
+            //m.orthographic(20.0, -20.0, 15.0, -15.0, -10, -100);
+            //m.orthographic(-20.0, 20.0, -15.0, 15.0, -10, -100);
+            m.perspective(Fixed(3.141592/1.1), (Fixed(800.0) / Fixed(600.0)), Fixed(-0.1), Fixed(-200.0));
            //m.print();
             m.viewport(800, 600);
             //m.print();
@@ -251,6 +257,7 @@ int main(int argc, char** argv) {
             img.render_to_X(display, window, s);
             std::cout << "herez\n";
             std::cout << "eye: " << eye[0].to_float() << ' ' << eye[1].to_float() << ' ' << eye[2].to_float() << endl;
+            std::cout << "gaze: " << gaze[0].to_float() << ' ' << gaze[1].to_float() << ' ' << gaze[2].to_float() << endl;
             m.print();
 
     //        XFlush(display);

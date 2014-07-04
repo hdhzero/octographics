@@ -160,6 +160,21 @@ void Matrix::frustum(Fixed l, Fixed r, Fixed b, Fixed t, Fixed n, Fixed f) {
 	multiply(tmp);
 }
 
+void Matrix::perspective(Fixed fov, Fixed aspect, Fixed n, Fixed f) {
+    Fixed l;
+    Fixed r;
+    Fixed b;
+    Fixed t;
+    Fixed nn = n.to_float() < 0.0 ? -n : n;
+
+    t = Fixed(tan(fov.to_float() / 2.0)) * nn;
+    r = t * aspect;
+    l = -r;
+    b = -t;
+
+    frustum(l, r, b, t, n, f);
+}
+
 
 void Matrix::camera(Vertex& eye, Vertex& gaze, Vertex& view_up) {
     Fixed tmp[4][4];
