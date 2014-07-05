@@ -167,4 +167,13 @@ bool Vertex::operator!=(const Vertex& vertex) const {
         && c[2].num == vertex[2].num && c[3].num == vertex[3].num);
 }
 
+void Vertex::print() {
+    std::cout << "{ ";
+    for (int i = 0; i < 3; ++i) {
+        std::cout << c[i].to_float() << ", ";
+    }
+
+    std::cout << c[3].to_float() << " }\n";
+}
+
 }

@@ -21,6 +21,7 @@ class Fixed {
         Fixed operator*(const Fixed& n) const;
         Fixed operator/(const Fixed& n) const;
         float to_float();
+        const float to_float() const;
 
         
 };

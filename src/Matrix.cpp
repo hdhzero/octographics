@@ -154,8 +154,8 @@ void Matrix::frustum(Fixed l, Fixed r, Fixed b, Fixed t, Fixed n, Fixed f) {
 	tmp[1][2] = (b + t) / (b - t);
 	tmp[2][2] = (f + n) / (n - f);
 	tmp[2][3] = (Fixed(2.0) * f * n) / (f - n);
-	tmp[3][2] = 1;
-	tmp[3][3] = 0;
+	tmp[3][2] = Fixed(1.0);
+	tmp[3][3] = Fixed(0.0);
 
 	multiply(tmp);
 }
@@ -172,9 +172,27 @@ void Matrix::perspective(Fixed fov, Fixed aspect, Fixed n, Fixed f) {
     l = -r;
     b = -t;
 
+    std::cout << "t r l b: ";
+    std::cout << t.to_float() << ' ' << r.to_float() << ' ' << l.to_float()
+        << ' ' << b.to_float() << std::endl;
+
     frustum(l, r, b, t, n, f);
 }
 
+void Matrix::perp(Fixed n, Fixed f) {
+    Fixed tmp[4][4];
+
+    set_identity(tmp);
+
+    tmp[0][0] = n;
+    tmp[1][1] = n;
+    tmp[2][2] = n + f;
+    tmp[2][3] = -(f * n);
+    tmp[3][2] = Fixed(1.0);
+    tmp[3][3] = Fixed(0.0);
+
+    multiply(tmp);
+}
 
 void Matrix::camera(Vertex& eye, Vertex& gaze, Vertex& view_up) {
     Fixed tmp[4][4];

@@ -25,6 +25,7 @@ class Matrix {
         void orthographic(Fixed l, Fixed r, Fixed b, Fixed t, Fixed n, Fixed f);
         void frustum(Fixed l, Fixed r, Fixed b, Fixed t, Fixed n, Fixed f);
         void perspective(Fixed fov, Fixed aspect, Fixed n, Fixed f);
+        void perp(Fixed n, Fixed f);
         void camera(Vertex& eye, Vertex& gaze, Vertex& view_up);
         void camera2(Vertex& eye, Vertex& gaze, Vertex& view_up);
         

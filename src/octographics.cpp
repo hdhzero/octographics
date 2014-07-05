@@ -67,14 +67,14 @@ void draw_cube(OctoGraphics::Matrix& mt, OctoGraphics::Image& img) {
 
 int main(int argc, char** argv) {
     OctoGraphics::Color color;
-    OctoGraphics::Image img(800, 600);
+    OctoGraphics::Image img(640, 480);
 
-    OctoGraphics::Vertex X(100.0, 0, 0, 1);
-    OctoGraphics::Vertex Y(0, 100.0, 0, 1);
-    OctoGraphics::Vertex Z(0, 0, 100.0, 1);
+    OctoGraphics::Vertex X(10.0, 0, 0, 1);
+    OctoGraphics::Vertex Y(0, 10.0, 0, 1);
+    OctoGraphics::Vertex Z(0, 0, 10.0, 1);
 
     OctoGraphics::Vertex w(0, 0, 0, 1);
-    OctoGraphics::Vertex eye(20.0, 20.0, 20.0, 1);
+    OctoGraphics::Vertex eye(10.0, 10.0, 10.0, 1);
     OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1);
     OctoGraphics::Vertex view_up(0.0, 1.0, 0.0, 0.0);
     OctoGraphics::Matrix m, mm;
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
  
     /* create window */
 
-    window = XCreateSimpleWindow(display, RootWindow(display, s), 10, 10, 800, 600, 1,
+    window = XCreateSimpleWindow(display, RootWindow(display, s), 10, 10, 640, 480, 1,
                            BlackPixel(display, s), WhitePixel(display, s));
  
     /* select kind of events we are interested in */
@@ -109,6 +109,7 @@ int main(int argc, char** argv) {
     int obj;
     int op;
     int coord;
+    float mfov = 4.0;
     OctoGraphics::Fixed um(0.001);
     OctoGraphics::Fixed major(1.0);
     OctoGraphics::Fixed minor(0.001);
@@ -132,6 +133,8 @@ int main(int argc, char** argv) {
             if (k('z')) { coord = 2; }
             if (k('o')) { um = Fixed(1.0); }//major; }
             if (k('p')) { um = Fixed(0.001); } //minor; }
+            if (k('i')) { mfov += 1.0; }
+            if (k('k')) { mfov -= 1.0; }
             if (k('q')) { break; }
 
             if (k('w')) {
@@ -221,24 +224,25 @@ int main(int argc, char** argv) {
             img.set_color(color);
 
             m.identity();
-            //m.rotate(0.0, 0.0, 3.141592/4.0);
-//            m.rotate(0.0, 0.0, eye[0].to_float());
-            //m.translate(100.0, 100.0, 0.0);
-//            m.translate(gaze[0].to_float(), gaze[1].to_float(), gaze[2].to_float());
-            //m.print();
             m.camera(eye, gaze, view_up);
-            //m.print();
-            //m.orthographic(20.0, -20.0, 15.0, -15.0, -10, -100);
+//            m.perp(Fixed(-10.0), Fixed(-100.0));
+//            m.orthographic(20.0, -20.0, 15.0, -15.0, -10, -100);
             //m.orthographic(-20.0, 20.0, -15.0, 15.0, -10, -100);
-            m.perspective(Fixed(3.141592/1.1), (Fixed(800.0) / Fixed(600.0)), Fixed(-0.1), Fixed(-200.0));
-           //m.print();
-            m.viewport(800, 600);
-            //m.print();
+            m.perspective(Fixed(3.141592/mfov), (Fixed(640.0) / Fixed(480.0)), Fixed(-0.1), Fixed(-100.0));
 
-            color.set_rgb(255, 0, 0);
+            color.set_rgb(0, 255, 255);
             img.set_color(color);
+            std::cout << "1vec\n";
             img.draw_simple_line(X, w);
+            std::cout << "2vec\n";
+            m.print();
+            std::cout << "---\n";
+            m.viewport(640, 480);
+            m.print();
+            X.print();
+            m.apply(X).print();
             img.draw_simple_line(m.apply(X), m.apply(w));
+            std::cout << "3vec\n";
 
             color.set_rgb(0, 255, 0);
             img.set_color(color);
@@ -258,7 +262,6 @@ int main(int argc, char** argv) {
             std::cout << "herez\n";
             std::cout << "eye: " << eye[0].to_float() << ' ' << eye[1].to_float() << ' ' << eye[2].to_float() << endl;
             std::cout << "gaze: " << gaze[0].to_float() << ' ' << gaze[1].to_float() << ' ' << gaze[2].to_float() << endl;
-            m.print();
 
     //        XFlush(display);
 //            break;

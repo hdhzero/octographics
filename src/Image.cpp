@@ -80,10 +80,13 @@ void Image::open(std::string filename) {
 }
 
 void Image::draw_simple_line(const Vertex& v1, const Vertex& v2) {
-    Fixed a0 = v1[0] / v1[3];
-    Fixed a1 = v1[1] / v1[3];
-    Fixed a2 = v2[0] / v2[3];
-    Fixed a3 = v2[1] / v2[3];
+    Fixed a0 = v1[0] / (v1[3].to_float() == 0.0 ? Fixed(0.0001) : v1[3]);
+    Fixed a1 = v1[1] / (v1[3].to_float() == 0.0 ? Fixed(0.0001) : v1[3]);
+
+    Fixed a2 = v2[0] / (v2[3].to_float() == 0.0 ? Fixed(0.0001) : v2[3]);
+
+    Fixed a3 = v2[1] / (v2[3].to_float() == 0.0 ? Fixed(0.0001) : v2[3]);
+
 
     int p1x = a0.to_float();
     int p1y = a1.to_float();
@@ -91,8 +94,6 @@ void Image::draw_simple_line(const Vertex& v1, const Vertex& v2) {
     int p2y = a3.to_float();
 
     int F, x, y;
-    std::cout << "points: " << p1x << ' ' << p1y 
-        << ' ' << p2x << ' ' << p2y << '\n';
 
     if (p1x > p2x)  // Swap points if p1 is on the right of p2
     {

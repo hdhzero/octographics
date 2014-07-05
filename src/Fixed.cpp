@@ -96,3 +96,19 @@ float Fixed::to_float() {
 
     return t0;
 }
+
+const float Fixed::to_float() const {
+    float t0 = (num >> fp);
+    float t1 = 0.5;
+    int i = fp - 1;
+
+    while (i >= 0) {
+        if (num & (1 << i)) {
+            t0 += t1;
+        }
+        t1 /= 2.0;
+        --i;
+    }
+
+    return t0;
+}

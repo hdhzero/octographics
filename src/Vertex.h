@@ -35,6 +35,7 @@ class Vertex {
 
         bool operator==(const Vertex& vertex) const;
         bool operator!=(const Vertex& vertex) const;
+        void print();
         
 };
 
