@@ -172,10 +172,6 @@ void Matrix::perspective(Fixed fov, Fixed aspect, Fixed n, Fixed f) {
     l = -r;
     b = -t;
 
-    std::cout << "t r l b: ";
-    std::cout << t.to_float() << ' ' << r.to_float() << ' ' << l.to_float()
-        << ' ' << b.to_float() << std::endl;
-
     frustum(l, r, b, t, n, f);
 }
 

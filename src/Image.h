@@ -30,6 +30,7 @@ class Image {
     public:
         void draw_simple_line(const Vertex& v1, const Vertex& v2);
         void render_to_X(Display*& display, Window& drawable, int s);
+        void draw_point(int x, int y, Color& c);
 };
 
 }

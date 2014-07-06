@@ -28,6 +28,10 @@ void Image::set_pixel(int i, int j, Color& c) {
     drawing[i][j].set_color(c);
 }
 
+void Image::draw_point(int x, int y, Color& c) {
+    set_pixel(y, x, c);
+}
+
 void Image::set_color(Color& c) {
     color = c;
 }

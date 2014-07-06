@@ -25,7 +25,12 @@ Fixed::Fixed(float n, int ip, int fp) {
 }
 
 Fixed::Fixed(int num, int ip, int fp) {
+#ifndef OC_USEFLOAT
+    this->num = (1 << fp) * ((float) num);
+#else
     this->num = num;
+#endif
+
     this->ip = ip;
     this->fp = fp;
 }

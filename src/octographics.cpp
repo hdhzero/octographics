@@ -17,6 +17,8 @@ bool k(char c) {
     return  (XLookupKeysym(&event.xkey, 0) == c);
 }
 
+void draw_triangle(Vertex p1, Vertex p2, Vertex p3, Color color, Image& img);
+
 class Objs {
     public:
         std::vector<std::vector<OctoGraphics::Vertex> > faces;
@@ -67,6 +69,21 @@ class Objs {
                     v2 = faces[i][(j + 1) % sz];
                     img.draw_simple_line(mt.apply(v1), mt.apply(v2));
                 }
+            }
+        }
+
+        void draw_objs2(OctoGraphics::Matrix& mt, OctoGraphics::Image& img) {
+            Vertex v1, v2, v3;
+            int sz;
+            Color c;
+            c.set_rgb(0, 255, 100);
+
+            for (int i = 0; i < faces.size(); ++i) {
+                v1 = mt.apply(faces[i][0]);
+                v2 = mt.apply(faces[i][1]);
+                v3 = mt.apply(faces[i][2]);
+
+                draw_triangle(v1, v2, v3, c, img);
             }
         }
 };
@@ -123,8 +140,8 @@ void draw_cube(OctoGraphics::Matrix& mt, OctoGraphics::Image& img, float sz) {
 void print_info() {
     Matrix m;
 
-    OctoGraphics::Vertex eye(100.0, 100.0, 100.0, 1);
-    OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1);
+    OctoGraphics::Vertex eye(100.0, 100.0, 100.0, 1.0);
+    OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1.0);
     OctoGraphics::Vertex view_up(0.0, 1.0, 0.0, 0.0);
 
     cout << "Camera\n";
@@ -139,7 +156,7 @@ void print_info() {
 
     cout << "Ortho\n";
     m.identity();
-    m.orthographic(16.0, -16.0, 12.0, -12.0, -10, -100);
+    m.orthographic(16.0, -16.0, 12.0, -12.0, -10.0, -100.0);
     m.print();
 
     cout << "Viewport\n";
@@ -187,6 +204,115 @@ void draw_spin_cube(Image& img, float sz) {
     
     draw_cube(m, img, sz);
     angle += 0.5f;
+}
+
+Fixed max(Fixed a, Fixed b) {
+    if (a.to_float() > b.to_float()) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+Fixed min(Fixed a, Fixed b) {
+    if (a.to_float() < b.to_float()) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+Fixed clamp(Fixed value, Fixed mn, Fixed mx) {
+    return max(mn, min(value, mx));
+}
+
+Fixed clamp(Fixed value) {
+    return max(Fixed(0.0), min(value, Fixed(1.0)));
+}
+
+Fixed interpolate(Fixed mn, Fixed mx, Fixed gradient) {
+    return mn + (mx - mn) * clamp(gradient);
+}
+
+void process_scanline(int y, Vertex pa, Vertex pb, Vertex pc, Vertex pd, Color color, Image& img) {
+    Fixed gradient1(1.0);
+    Fixed gradient2(1.0);
+    Fixed yy((float) y);
+
+    if (pa[1].to_float() != pb[1].to_float()) {
+        gradient1 = (yy - pa[1]) / (pb[1] - pa[1]);
+    }
+
+    if (pc[1].to_float() != pd[1].to_float()) {
+        gradient2 = (yy - pc[1]) / (pd[1] - pc[1]);
+    }
+
+    yy = interpolate(pa[0] / pa[3], pb[0] / pb[3], gradient1);
+    int sx = yy.to_float();
+    yy = interpolate(pc[0] / pc[3], pd[0] / pd[3], gradient2);
+    int ex = yy.to_float();
+
+    for (int x = sx; x < ex; ++x) {
+        //std::cout << "pp: " << x << ' ' << y << ' ' << ex << '\n';
+        img.draw_point(x, y, color);
+        //cin >> x;
+    }
+}
+
+void draw_triangle(Vertex p1, Vertex p2, Vertex p3, Color color, Image& img) {
+    Vertex tmp;
+
+    if (p1[1].to_float() > p2[1].to_float()) {
+        tmp = p2;
+        p2 = p1;
+        p1 = tmp;
+    }
+
+    if (p2[1].to_float() > p3[1].to_float()) {
+        tmp = p2;
+        p2 = p3;
+        p3 = tmp;
+    }
+
+    if (p1[1].to_float() > p2[1].to_float()) {
+        tmp = p2;
+        p2 = p1;
+        p1 = tmp;
+    }
+
+    Fixed dP1P2, dP1P3;
+
+    if ((p2[1].to_float() - p1[1].to_float()) > 0.0) {
+        dP1P2 = (p2[0] - p1[0]) / (p2[1] - p1[1]);
+    } else {
+        dP1P2 = Fixed(0.0);
+    }
+
+    if ((p3[1].to_float() - p1[1].to_float()) > 0.0) {
+        dP1P3 = (p3[0] - p1[0]) / (p3[1] - p1[1]);
+    } else {
+        dP1P3 = Fixed(0.0);
+    }
+
+    if (dP1P2.to_float() > dP1P3.to_float()) {
+        for (int y = p1[1].to_float() / p1[3].to_float(); 
+y <= p3[1].to_float() / p3[3].to_float(); ++y) {
+            if (y < p2[1].to_float() / p2[3].to_float()) {
+                process_scanline(y, p1, p3, p1, p2, color, img);
+            } else {
+                process_scanline(y, p1, p3, p2, p3, color, img);
+            }
+        }
+    } else {
+        for (int y = p1[1].to_float() / p1[3].to_float(); 
+y <= p3[1].to_float() / p3[3].to_float(); ++y) {
+            if (y < p2[1].to_float() / p2[3].to_float()) {
+                process_scanline(y, p1, p2, p1, p3, color, img);
+            } else {
+                process_scanline(y, p2, p3, p1, p3, color, img);
+            }
+        }
+    }
 }
 
 int main(int argc, char** argv) {
@@ -359,9 +485,9 @@ int main(int argc, char** argv) {
             m.camera(eye, gaze, view_up);
             //m.perp(Fixed(-10.0), Fixed(-100.0));
 //            m.orthographic(20.0, -20.0, 15.0, -15.0, -10, -100);
-            m.orthographic(16.0, -16.0, 12.0, -12.0, -10, -100);
+//            m.orthographic(16.0, -16.0, 12.0, -12.0, -10, -100);
             //m.orthographic(-20.0, 20.0, -15.0, 15.0, -10, -100);
-//            m.perspective(Fixed(3.141592/mfov), (Fixed(640.0) / Fixed(480.0)), Fixed(-0.1), Fixed(-20.0));
+            m.perspective(Fixed(3.141592/mfov), (Fixed(640.0) / Fixed(480.0)), Fixed(-0.1), Fixed(-20.0));
 
 
             color.set_rgb(0, 255, 255);

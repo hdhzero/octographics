@@ -66,12 +66,7 @@ Vertex& Vertex::operator/=(Fixed t) {
 }
 
 Vertex Vertex::operator-() const {
-    Fixed a(-c[0].num);
-    Fixed b(-c[1].num);
-    Fixed cc(-c[2].num);
-    Fixed d(c[3].num);
-
-    return Vertex(a, b, cc, d);
+    return Vertex(-c[0], -c[1], -c[2], c[3]);
 }
 
 Vertex Vertex::operator+(const Vertex& vertex) const {

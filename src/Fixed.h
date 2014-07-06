@@ -6,6 +6,9 @@
 
 namespace OctoGraphics {
 
+#define OC_IP 20
+#define OC_FP 14
+
 class Fixed {
     public:
         #ifdef OC_USEFLOAT
@@ -17,9 +20,9 @@ class Fixed {
         int fp;
 
     public:
-        Fixed(double n, int ip = 20, int fp = 12);
-        Fixed(float n, int ip = 20, int fp = 12);
-        Fixed(int num = 0, int ip = 20, int fp = 12);
+        Fixed(double n, int ip = OC_IP, int fp = OC_FP);
+        Fixed(float n, int ip = OC_IP, int fp = OC_FP);
+        Fixed(int num = 0, int ip = OC_IP, int fp = OC_FP);
         Fixed operator-() const;
         Fixed operator+(const Fixed& n) const;
         Fixed operator-(const Fixed& n) const;
