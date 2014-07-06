@@ -120,11 +120,61 @@ void draw_cube(OctoGraphics::Matrix& mt, OctoGraphics::Image& img, float sz) {
     }
 }
 
+void print_info() {
+    Matrix m;
+
+    OctoGraphics::Vertex eye(100.0, 100.0, 100.0, 1);
+    OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1);
+    OctoGraphics::Vertex view_up(0.0, 1.0, 0.0, 0.0);
+
+    cout << "Camera\n";
+    m.identity();
+    m.camera(eye, gaze, view_up);
+    m.print();
+
+    cout << "Perspective\n";
+    m.identity();
+    m.perspective(Fixed(3.141592/4.0), Fixed(640.0 / 480.0), Fixed(-0.1), Fixed(-20.0));
+    m.print();
+
+    cout << "Ortho\n";
+    m.identity();
+    m.orthographic(16.0, -16.0, 12.0, -12.0, -10, -100);
+    m.print();
+
+    cout << "Viewport\n";
+    m.identity();
+    m.viewport(640, 480);
+    m.print();
+
+    cout << "Transforms\n";
+    m.identity();
+    m.scale(Fixed(3.0), Fixed(-2.0), Fixed(9.0));
+    m.translate(Fixed(100.0), Fixed(-50.0), Fixed(30.0));
+    m.rotate(Fixed(3.141592), Fixed(0.0), Fixed(0.0));
+    m.translate(Fixed(100.0), Fixed(-50.0), Fixed(30.0));
+    m.print();
+
+    cout << "All together\n";
+    m.identity();
+    m.scale(Fixed(3.0), Fixed(-2.0), Fixed(9.0));
+    m.translate(Fixed(100.0), Fixed(-50.0), Fixed(30.0));
+    m.rotate(Fixed(3.141592), Fixed(0.0), Fixed(0.0));
+    m.translate(Fixed(100.0), Fixed(-50.0), Fixed(30.0));
+    m.camera(eye, gaze, view_up);
+    m.perspective(Fixed(3.141592/4.0), Fixed(640.0 / 480.0), Fixed(-0.1), Fixed(-20.0));
+    m.print();
+    cout << "\n-------\n";
+    m.viewport(640, 480);
+    m.print();
+
+}
+
 void draw_spin_cube(Image& img, float sz) {
     Matrix m;
-    static float angle = 1.0f;
-    OctoGraphics::Vertex eye(0.0, 10.0, 10.0, 1.0);
-    OctoGraphics::Vertex gaze(0.0, 0.0, -100.0, 1.0);
+    static float angle = 0.1f;
+    OctoGraphics::Vertex eye(10.0, 10.0, 10.0, 1.0);
+    OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1.0);
     OctoGraphics::Vertex view_up(0.0, 1.0, 0.0, 0.0);
 
 
@@ -148,7 +198,7 @@ int main(int argc, char** argv) {
     OctoGraphics::Vertex Z(0, 0, 10.0, 1);
 
     OctoGraphics::Vertex w(0, 0, 0, 1);
-    OctoGraphics::Vertex eye(10.0, 10.0, 10.0, 1);
+    OctoGraphics::Vertex eye(100.0, 100.0, 100.0, 1);
     OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1);
     OctoGraphics::Vertex view_up(0.0, 1.0, 0.0, 0.0);
     OctoGraphics::Matrix m, mm;
@@ -192,6 +242,8 @@ int main(int argc, char** argv) {
     OctoGraphics::Fixed um(0.001);
     OctoGraphics::Fixed major(1.0);
     OctoGraphics::Fixed minor(0.001);
+    cout.precision(7);
+    print_info();
 
     /* event loop */
 
@@ -212,6 +264,7 @@ int main(int argc, char** argv) {
             if (k('z')) { coord = 2; }
             if (k('o')) { um = Fixed(1.0); }//major; }
             if (k('p')) { um = Fixed(0.1); } //minor; }
+            if (k('[')) { um = Fixed(10.0); } //minor; }
             if (k('i')) { mfov += 1.0; }
             if (k('k')) { mfov -= 1.0; }
             if (k('q')) { break; }
@@ -308,7 +361,8 @@ int main(int argc, char** argv) {
 //            m.orthographic(20.0, -20.0, 15.0, -15.0, -10, -100);
             m.orthographic(16.0, -16.0, 12.0, -12.0, -10, -100);
             //m.orthographic(-20.0, 20.0, -15.0, 15.0, -10, -100);
-//            m.perspective(Fixed(3.141592/mfov), (Fixed(640.0) / Fixed(480.0)), Fixed(-10.1), Fixed(-20.0));
+//            m.perspective(Fixed(3.141592/mfov), (Fixed(640.0) / Fixed(480.0)), Fixed(-0.1), Fixed(-20.0));
+
 
             color.set_rgb(0, 255, 255);
             img.set_color(color);

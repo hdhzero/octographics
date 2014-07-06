@@ -59,7 +59,7 @@ void Matrix::identity() {
 void Matrix::print() {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            std::cout << m[i][j].to_float() << ' ';
+            std::cout << m[i][j].to_float() << "\t\t";
         }
         std::cout << std::endl;
     }

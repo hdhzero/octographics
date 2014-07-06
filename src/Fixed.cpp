@@ -3,13 +3,23 @@
 using namespace OctoGraphics;
 
 Fixed::Fixed(double n, int ip, int fp) {
+#ifndef OC_USEFLOAT
     num = (1 << fp) * n;
+#else
+    num = n;
+#endif
+
     this->ip = ip;
     this->fp = fp;
 }
 
 Fixed::Fixed(float n, int ip, int fp) {
+#ifndef OC_USEFLOAT
     num = (1 << fp) * n;
+#else
+    num = n;
+#endif
+
     this->ip = ip;
     this->fp = fp;
 }
@@ -21,6 +31,7 @@ Fixed::Fixed(int num, int ip, int fp) {
 }
 
 Fixed Fixed::operator+(const Fixed& n) const {
+#ifndef OC_USEFLOAT
     Fixed tmp;
 
     tmp.ip = ip;
@@ -28,9 +39,13 @@ Fixed Fixed::operator+(const Fixed& n) const {
     tmp.num = n.num + num;
 
     return tmp;
+#else
+    return num + n.num;
+#endif
 }
 
 Fixed Fixed::operator-() const {
+#ifndef OC_USEFLOAT
     Fixed tmp;
 
     tmp.ip = ip;
@@ -38,9 +53,13 @@ Fixed Fixed::operator-() const {
     tmp.num = -num;
 
     return tmp;
+#else
+    return -num;
+#endif
 }
 
 Fixed Fixed::operator-(const Fixed& n) const {
+#ifndef OC_USEFLOAT
     Fixed tmp;
 
     tmp.ip = ip;
@@ -48,9 +67,13 @@ Fixed Fixed::operator-(const Fixed& n) const {
     tmp.num = num - n.num;
 
     return tmp;
+#else
+    return num - n.num;
+#endif
 }
 
 Fixed Fixed::operator*(const Fixed& n) const {
+#ifndef OC_USEFLOAT
     Fixed tmp;
     long long int v;
     long long int r;
@@ -62,10 +85,13 @@ Fixed Fixed::operator*(const Fixed& n) const {
     tmp.num = v >> fp;
 
     return tmp;
-
+#else
+    return num * n.num;
+#endif
 }
 
 Fixed Fixed::operator/(const Fixed& n) const {
+#ifndef OC_USEFLOAT
     Fixed tmp;
     long long int v;
     long long int r;
@@ -78,10 +104,13 @@ Fixed Fixed::operator/(const Fixed& n) const {
     tmp.num = v;
 
     return tmp;
-
+#else
+    return num / n.num;
+#endif
 }
 
 float Fixed::to_float() {
+#ifndef OC_USEFLOAT
     float t0 = (num >> fp);
     float t1 = 0.5;
     int i = fp - 1;
@@ -95,9 +124,13 @@ float Fixed::to_float() {
     }
 
     return t0;
+#else
+    return num;
+#endif
 }
 
 const float Fixed::to_float() const {
+#ifndef OC_USEFLOAT
     float t0 = (num >> fp);
     float t1 = 0.5;
     int i = fp - 1;
@@ -111,4 +144,7 @@ const float Fixed::to_float() const {
     }
 
     return t0;
+#else
+    return num;
+#endif
 }
