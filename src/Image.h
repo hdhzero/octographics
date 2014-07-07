@@ -2,6 +2,7 @@
 #define OCTOGRAPHICS_IMAGE_H
 
 #include "OctoGraphics.h"
+#include <stdint.h>
 #include <X11/Xlib.h>
 
 namespace OctoGraphics {
@@ -12,6 +13,7 @@ class Image {
         int height;
         Color color;
         std::vector<std::vector<Color> > drawing;
+        std::vector<std::vector<Fixed> > depth_buffer;
 
     private:
         void alloc(int w, int h);
@@ -30,7 +32,9 @@ class Image {
     public:
         void draw_simple_line(const Vertex& v1, const Vertex& v2);
         void render_to_X(Display*& display, Window& drawable, int s);
+        void render_to_SDL(uint32_t* framebuffer);
         void draw_point(int x, int y, Color& c);
+        void draw_point(Vertex& v, Color& c);
 };
 
 }

@@ -8,16 +8,223 @@
 #include <fstream>
 #include <sstream>
 #include "OctoGraphics.h"
+#include <SDL/SDL.h>
 
 using namespace OctoGraphics;
 using namespace std;
 
-XEvent event;
-bool k(char c) {
-    return  (XLookupKeysym(&event.xkey, 0) == c);
-}
+int obj;
+int op;
+int coord;
+float mfov = 4.0;
+bool running = true;
+int width  = 640;
+int height = 480;
+
+Fixed um(1.0);
+SDL_Surface* screen = NULL;
+
+Vertex eye(20.0, 20.0, -20.0, 1);
+Vertex gaze(0.0, 0.0, 0.0, 1);
+Vertex view_up(0.0, 1.0, 0.0, 0.0);
+
+Color color;
+Image img(640, 480);
+Matrix m;
 
 void draw_triangle(Vertex p1, Vertex p2, Vertex p3, Color color, Image& img);
+
+uint32_t* get_framebuffer() {
+    return (uint32_t*) screen->pixels;
+}
+
+void apply_transformations() {
+    m.identity();
+    m.camera(eye, gaze, view_up);
+    //m.orthographic(16.0, -16.0, 12.0, -12.0, -10.0, -100.0);
+    m.perspective(Fixed(3.141592/mfov), (Fixed(640.0) / Fixed(480.0)), Fixed(-0.1), Fixed(-200.0));
+    m.viewport(640, 480);
+}
+
+void print_manipulation_info() {
+    std::cout << "values: " << (char) obj 
+        << ' ' << (char) op << ' ' << coord << std::endl;
+
+    std::cout << "eye: " << eye[0].to_float() 
+        << ' ' << eye[1].to_float() << ' ' << eye[2].to_float() << endl;
+
+    std::cout << "gaze: " << gaze[0].to_float() 
+        << ' ' << gaze[1].to_float() << ' ' << gaze[2].to_float() << endl;
+
+    std::cout << "up: " << view_up[0].to_float() 
+        << ' ' << view_up[1].to_float() << ' ' << view_up[2].to_float() << endl;
+}
+
+void render_to_sdl() {
+    SDL_LockSurface(screen);
+    img.render_to_SDL(get_framebuffer());
+    SDL_UnlockSurface(screen);
+    SDL_UpdateRect(screen, 0, 0, 0, 0);
+}
+
+void init_sdl() {
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        cout << "Error at SDL\n";
+        exit(0);
+    }
+
+    screen = SDL_SetVideoMode(width, height, 32, SDL_HWSURFACE);
+
+    if (!screen) {
+        SDL_Quit();
+        cout << "SDL_SetVideoMode failed\n";
+        exit(0);
+    }
+
+    SDL_WM_SetCaption("Octographics", NULL);
+}
+
+
+void handle_inc() {
+    if (obj == 'e' && op == 't') {
+        eye[coord] = eye[coord] + um;
+    }
+    if (obj == 'g' && op == 't') {
+        gaze[coord] = gaze[coord] + um;
+    }
+    if (obj == 'u' && op == 't') {
+        view_up[coord] = view_up[coord] + um;
+    }
+    if (obj == 'e' && op == 'r') {
+        OctoGraphics::Matrix tmp;
+        tmp.identity();
+        if (coord == 0) { tmp.rotate(0.1, 0, 0); }
+        if (coord == 1) { tmp.rotate(0, 0.1, 0); }
+        if (coord == 2) { tmp.rotate(0, 0, 0.1); }
+        eye = tmp.apply(eye);
+    }
+    if (obj == 'g' && op == 'r') {
+        OctoGraphics::Matrix tmp;
+        tmp.identity();
+        if (coord == 0) { tmp.rotate(0.1, 0, 0); }
+        if (coord == 1) { tmp.rotate(0, 0.1, 0); }
+        if (coord == 2) { tmp.rotate(0, 0, 0.1); }
+        gaze = tmp.apply(gaze);
+    }
+    if (obj == 'u' && op == 'r') {
+        OctoGraphics::Matrix tmp;
+        tmp.identity();
+        if (coord == 0) { tmp.rotate(0.1, 0, 0); }
+        if (coord == 1) { tmp.rotate(0, 0.1, 0); }
+        if (coord == 2) { tmp.rotate(0, 0, 0.1); }
+        view_up = tmp.apply(view_up);
+    }
+}
+
+void handle_dec() {
+    if (obj == 'e' && op == 't') {
+        eye[coord] = eye[coord] - um;
+    }
+    if (obj == 'g' && op == 't') {
+        gaze[coord] = gaze[coord] - um;
+    }
+    if (obj == 'u' && op == 't') {
+        view_up[coord] = view_up[coord] - um;
+    }
+    if (obj == 'e' && op == 'r') {
+        OctoGraphics::Matrix tmp;
+        tmp.identity();
+        if (coord == 0) { tmp.rotate(-0.1, 0, 0); }
+        if (coord == 1) { tmp.rotate(0, -0.1, 0); }
+        if (coord == 2) { tmp.rotate(0, 0, -0.1); }
+        eye = tmp.apply(eye);
+    }
+    if (obj == 'g' && op == 'r') {
+        OctoGraphics::Matrix tmp;
+        tmp.identity();
+        if (coord == 0) { tmp.rotate(-0.1, 0, 0); }
+        if (coord == 1) { tmp.rotate(0, -0.1, 0); }
+        if (coord == 2) { tmp.rotate(0, 0, -0.1); }
+        gaze = tmp.apply(gaze);
+    }
+    if (obj == 'u' && op == 'r') {
+        OctoGraphics::Matrix tmp;
+        tmp.identity();
+        if (coord == 0) { tmp.rotate(-0.1, 0, 0); }
+        if (coord == 1) { tmp.rotate(0, -0.1, 0); }
+        if (coord == 2) { tmp.rotate(0, 0, -0.1); }
+        view_up = tmp.apply(view_up);
+    }
+}
+
+void handle_keypress(SDL_Event& event) {
+    switch (event.key.keysym.sym) {
+        case SDLK_q:
+            running = false;
+            break;
+
+        case SDLK_r:
+            op = 'r'; break;
+
+        case SDLK_t:
+            op = 't'; break;
+
+        case SDLK_e:
+            obj = 'e'; break;
+
+        case SDLK_g:
+            obj = 'g'; break;
+
+        case SDLK_u:
+            obj = 'u'; break;
+
+        case SDLK_x:
+            coord = 0; break;
+
+        case SDLK_y:
+            coord = 1; break;
+
+        case SDLK_z:
+            coord = 2; break;
+
+        case SDLK_b:
+            um = Fixed(10.0); break;
+
+        case SDLK_n:
+            um = Fixed(1.0); break;
+
+        case SDLK_m:
+            um = Fixed(0.1); break;
+
+        case SDLK_i:
+            mfov += 1.0; break;
+            
+        case SDLK_k:
+            mfov -= 1.0; break;
+
+        case SDLK_w:
+            handle_inc(); break;
+
+        case SDLK_s:
+            handle_dec(); break;
+    }
+}
+
+void handle_event(SDL_Event& event) {
+    switch (event.type) {
+        case SDL_QUIT:
+            running = false;
+            break;
+
+        case SDL_KEYDOWN:
+            handle_keypress(event);
+            break;
+
+        default:
+            break;
+    }
+}
+
 
 class Objs {
     public:
@@ -72,11 +279,19 @@ class Objs {
             }
         }
 
+        void change_color(Color& c) {
+            int r = c.get_red();
+            int g = c.get_green();
+            int b = c.get_blue();
+
+            c.set_rgb(g, b, r);
+        }
+
         void draw_objs2(OctoGraphics::Matrix& mt, OctoGraphics::Image& img) {
             Vertex v1, v2, v3;
             int sz;
             Color c;
-            c.set_rgb(0, 255, 100);
+            c.set_rgb(0, 255, 0);
 
             for (int i = 0; i < faces.size(); ++i) {
                 v1 = mt.apply(faces[i][0]);
@@ -84,58 +299,11 @@ class Objs {
                 v3 = mt.apply(faces[i][2]);
 
                 draw_triangle(v1, v2, v3, c, img);
+                change_color(c);
             }
         }
 };
 
-std::vector<OctoGraphics::Vertex> cube(float sz) {
-    std::vector<OctoGraphics::Vertex> tmp;
-    tmp.push_back(OctoGraphics::Vertex(0.0, 0.0, 0.0, 1.0));
-    tmp.push_back(OctoGraphics::Vertex(sz, 0.0, 0.0, 1.0));
-
-    tmp.push_back(OctoGraphics::Vertex(0, 0, 0, 1.0));
-    tmp.push_back(OctoGraphics::Vertex(0, sz, 0, 1.0));
-
-    tmp.push_back(OctoGraphics::Vertex(sz, 0, 0, 1.0));
-    tmp.push_back(OctoGraphics::Vertex(sz, sz, 0, 1.0));
-
-    tmp.push_back(OctoGraphics::Vertex(0, sz, 0, 1));
-    tmp.push_back(OctoGraphics::Vertex(sz, sz, 0, 1));
-
-    tmp.push_back(OctoGraphics::Vertex(0, 0, 0, 1));
-    tmp.push_back(OctoGraphics::Vertex(0, 0, sz, 1));
-
-    tmp.push_back(OctoGraphics::Vertex(0, sz, 0, 1));
-    tmp.push_back(OctoGraphics::Vertex(0, sz, sz, 1));
-
-    tmp.push_back(OctoGraphics::Vertex(sz, sz, 0, 1));
-    tmp.push_back(OctoGraphics::Vertex(sz, sz, sz, 1));
-
-    tmp.push_back(OctoGraphics::Vertex(sz, 0, 0, 1));
-    tmp.push_back(OctoGraphics::Vertex(sz, 0, sz, 1));
-
-    tmp.push_back(OctoGraphics::Vertex(0, sz, sz, 1));
-    tmp.push_back(OctoGraphics::Vertex(sz, sz, sz, 1));
-
-    tmp.push_back(OctoGraphics::Vertex(0, 0, sz, 1));
-    tmp.push_back(OctoGraphics::Vertex(sz, 0, sz, 1));
-
-    tmp.push_back(OctoGraphics::Vertex(sz, sz, sz,1));
-    tmp.push_back(OctoGraphics::Vertex(sz, 0, sz, 1));
-
-    tmp.push_back(OctoGraphics::Vertex(0, sz, sz, 1));
-    tmp.push_back(OctoGraphics::Vertex(0, 0, sz, 1));
-
-    return tmp;
-}
-
-void draw_cube(OctoGraphics::Matrix& mt, OctoGraphics::Image& img, float sz) {
-    std::vector<OctoGraphics::Vertex> cb = cube(sz);
-
-    for (int q = 0; q < cb.size(); q += 2) {
-        img.draw_simple_line(mt.apply(cb[q]), mt.apply(cb[q+1]));
-    }
-}
 
 void print_info() {
     Matrix m;
@@ -180,30 +348,41 @@ void print_info() {
     m.translate(Fixed(100.0), Fixed(-50.0), Fixed(30.0));
     m.camera(eye, gaze, view_up);
     m.perspective(Fixed(3.141592/4.0), Fixed(640.0 / 480.0), Fixed(-0.1), Fixed(-20.0));
+    Vertex objn2 = m.apply(Vertex(Fixed(0.0), Fixed(0.0), Fixed(100.0), Fixed(1.0)));
     m.print();
     cout << "\n-------\n";
     m.viewport(640, 480);
     m.print();
 
-}
+    Vertex objn = m.apply(Vertex(Fixed(0.0), Fixed(0.0), Fixed(100.0), Fixed(1.0)));
 
-void draw_spin_cube(Image& img, float sz) {
-    Matrix m;
-    static float angle = 0.1f;
-    OctoGraphics::Vertex eye(10.0, 10.0, 10.0, 1.0);
-    OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1.0);
-    OctoGraphics::Vertex view_up(0.0, 1.0, 0.0, 0.0);
+    objn.print();
+    objn[0] = objn[0] / objn[3];
+    objn[1] = objn[1] / objn[3];
+    objn[2] = objn[2] / objn[3];
+    objn[3] = objn[3] / objn[3];
+    objn.print();
 
+    objn2.print();
+    objn2[0] = objn2[0] / objn2[3];
+    objn2[1] = objn2[1] / objn2[3];
+    objn2[2] = objn2[2] / objn2[3];
+    objn2[3] = objn2[3] / objn2[3];
+    objn2.print();
 
     m.identity();
-    m.rotate(Fixed(angle), Fixed(0.0), Fixed(0.0));
-    m.translate(Fixed(0.5f), Fixed(0.0f), Fixed(1.0f));
-    m.camera(eye, gaze, view_up);
-    m.perspective(Fixed(3.141592/4.0), (Fixed(640.0) / Fixed(480.0)), Fixed(-0.1), Fixed(-100.0));
+    m.perspective(Fixed(3.141592/4.0), Fixed(640.0 / 480.0), Fixed(-0.1), Fixed(-20.0));
     m.viewport(640, 480);
-    
-    draw_cube(m, img, sz);
-    angle += 0.5f;
+    objn2 = m.apply(Vertex(Fixed(0.0), Fixed(0.0), Fixed(100.0), Fixed(1.0)));
+
+    objn2[0] = objn2[0] / objn2[3];
+    objn2[1] = objn2[1] / objn2[3];
+    objn2[2] = objn2[2] / objn2[3];
+    objn2[3] = objn2[3] / objn2[3];
+
+    cout << "vertex at\n";
+    objn2.print();
+
 }
 
 Fixed max(Fixed a, Fixed b) {
@@ -252,9 +431,24 @@ void process_scanline(int y, Vertex pa, Vertex pb, Vertex pc, Vertex pd, Color c
     yy = interpolate(pc[0] / pc[3], pd[0] / pd[3], gradient2);
     int ex = yy.to_float();
 
+    Fixed z1 = interpolate(pa[2], pb[2], gradient1);
+    Fixed z2 = interpolate(pc[2], pd[2], gradient2);
+
     for (int x = sx; x < ex; ++x) {
-        //std::cout << "pp: " << x << ' ' << y << ' ' << ex << '\n';
-        img.draw_point(x, y, color);
+        Fixed gradient = Fixed((x - sx) / (float)(ex - sx));
+        Fixed z = interpolate(z1, z2, gradient);
+
+        Fixed ax((float) x);
+        Fixed ay((float) y);
+        Vertex av(ax, ay, z, Fixed(1.0));
+/*
+
+cout << "grads: " << gradient1.to_float() << ' ' << gradient2.to_float() 
+<< ' ' << gradient.to_float() << ' ' << z.to_float() 
+<< ' ' << z1.to_float() << ' ' << z2.to_float() 
+<< ": " << pa[2].to_float() << ' ' << pb[2].to_float() << endl;*/
+        img.draw_point(av, color);
+//        img.draw_point(x, y, color);
         //cin >> x;
     }
 }
@@ -315,231 +509,56 @@ y <= p3[1].to_float() / p3[3].to_float(); ++y) {
     }
 }
 
-int main(int argc, char** argv) {
-    OctoGraphics::Color color;
-    OctoGraphics::Image img(640, 480);
-
+void draw_axis() {
     OctoGraphics::Vertex X(10.0, 0, 0, 1);
     OctoGraphics::Vertex Y(0, 10.0, 0, 1);
     OctoGraphics::Vertex Z(0, 0, 10.0, 1);
-
     OctoGraphics::Vertex w(0, 0, 0, 1);
-    OctoGraphics::Vertex eye(100.0, 100.0, 100.0, 1);
-    OctoGraphics::Vertex gaze(0.0, 0.0, 0.0, 1);
-    OctoGraphics::Vertex view_up(0.0, 1.0, 0.0, 0.0);
-    OctoGraphics::Matrix m, mm;
+
+    color.set_rgb(255, 0, 0);
+    img.set_color(color);
+    img.draw_simple_line(X, w);
+    img.draw_simple_line(m.apply(X), m.apply(w));
+
+    color.set_rgb(0, 255, 0);
+    img.set_color(color);
+    img.draw_simple_line(Y, w);
+    img.draw_simple_line(m.apply(Y), m.apply(w));
+
+    color.set_rgb(0, 0, 255);
+    img.set_color(color);
+    img.draw_simple_line(Z, w);
+    img.draw_simple_line(m.apply(Z), m.apply(w));
+}
+
+int main(int argc, char** argv) {
     Objs objs;
     std::string filename(argv[1]);
     objs.read_obj(filename);
-    //objs.read_obj("/home/hdhzero/untitled2.obj");
-    //objs.read_obj("/home/hdhzero/untitled.obj");
 
-    Display *display;
-    Window window;
-    int s;
-
-    /* open connection with the server */
-
-    display = XOpenDisplay(NULL);
-    if (display == NULL) {
-        fprintf(stderr, "Cannot open display\n");
-        exit(1);
-    }
- 
-    s = DefaultScreen(display);
- 
-    /* create window */
-
-    window = XCreateSimpleWindow(display, RootWindow(display, s), 10, 10, 640, 480, 1,
-                           BlackPixel(display, s), WhitePixel(display, s));
- 
-    /* select kind of events we are interested in */
-
-    XSelectInput(display, window, ExposureMask | KeyPressMask);
- 
-    /* map (show) the window */
-
-    XMapWindow(display, window);
-
-    int obj;
-    int op;
-    int coord;
-    float mfov = 4.0;
-    OctoGraphics::Fixed um(0.001);
-    OctoGraphics::Fixed major(1.0);
-    OctoGraphics::Fixed minor(0.001);
-    cout.precision(7);
+    init_sdl();
     print_info();
 
     /* event loop */
+    while (running) {
+        SDL_Event event;
 
-    while (1) {
-//        XNextEvent(display, &event);
-        int f = XCheckWindowEvent(display, window, KeyPressMask, &event);
- 
-        /* exit on key press */
-
-        if (event.type == KeyPress && f == 1) {
-            if (k('r')) { op = 'r'; }
-            if (k('t')) { op = 't'; }
-            if (k('e')) { obj = 'e'; }
-            if (k('g')) { obj = 'g'; }
-            if (k('u')) { obj = 'u'; }
-            if (k('x')) { coord = 0; }
-            if (k('y')) { coord = 1; }
-            if (k('z')) { coord = 2; }
-            if (k('o')) { um = Fixed(1.0); }//major; }
-            if (k('p')) { um = Fixed(0.1); } //minor; }
-            if (k('[')) { um = Fixed(10.0); } //minor; }
-            if (k('i')) { mfov += 1.0; }
-            if (k('k')) { mfov -= 1.0; }
-            if (k('q')) { break; }
-
-            if (k('w')) {
-                if (obj == 'e' && op == 't') {
-                    eye[coord] = eye[coord] + um;
-                }
-                if (obj == 'g' && op == 't') {
-                    gaze[coord] = gaze[coord] + um;
-                }
-                if (obj == 'u' && op == 't') {
-                    view_up[coord] = view_up[coord] + um;
-                }
-                if (obj == 'e' && op == 'r') {
-                    OctoGraphics::Matrix tmp;
-                    tmp.identity();
-                    if (coord == 0) { tmp.rotate(0.1, 0, 0); }
-                    if (coord == 1) { tmp.rotate(0, 0.1, 0); }
-                    if (coord == 2) { tmp.rotate(0, 0, 0.1); }
-                    eye = tmp.apply(eye);
-                }
-                if (obj == 'g' && op == 'r') {
-                    OctoGraphics::Matrix tmp;
-                    tmp.identity();
-                    if (coord == 0) { tmp.rotate(0.1, 0, 0); }
-                    if (coord == 1) { tmp.rotate(0, 0.1, 0); }
-                    if (coord == 2) { tmp.rotate(0, 0, 0.1); }
-                    gaze = tmp.apply(gaze);
-                }
-                if (obj == 'u' && op == 'r') {
-                    OctoGraphics::Matrix tmp;
-                    tmp.identity();
-                    if (coord == 0) { tmp.rotate(0.1, 0, 0); }
-                    if (coord == 1) { tmp.rotate(0, 0.1, 0); }
-                    if (coord == 2) { tmp.rotate(0, 0, 0.1); }
-                    view_up = tmp.apply(view_up);
-                }
-
-
-            }
-
-            if (k('s')) {
-                if (obj == 'e' && op == 't') {
-                    eye[coord] = eye[coord] - um;
-                }
-                if (obj == 'g' && op == 't') {
-                    gaze[coord] = gaze[coord] - um;
-                }
-                if (obj == 'u' && op == 't') {
-                    view_up[coord] = view_up[coord] - um;
-                }
-                if (obj == 'e' && op == 'r') {
-                    OctoGraphics::Matrix tmp;
-                    tmp.identity();
-                    if (coord == 0) { tmp.rotate(-0.1, 0, 0); }
-                    if (coord == 1) { tmp.rotate(0, -0.1, 0); }
-                    if (coord == 2) { tmp.rotate(0, 0, -0.1); }
-                    eye = tmp.apply(eye);
-                }
-                if (obj == 'g' && op == 'r') {
-                    OctoGraphics::Matrix tmp;
-                    tmp.identity();
-                    if (coord == 0) { tmp.rotate(-0.1, 0, 0); }
-                    if (coord == 1) { tmp.rotate(0, -0.1, 0); }
-                    if (coord == 2) { tmp.rotate(0, 0, -0.1); }
-                    gaze = tmp.apply(gaze);
-                }
-                if (obj == 'u' && op == 'r') {
-                    OctoGraphics::Matrix tmp;
-                    tmp.identity();
-                    if (coord == 0) { tmp.rotate(-0.1, 0, 0); }
-                    if (coord == 1) { tmp.rotate(0, -0.1, 0); }
-                    if (coord == 2) { tmp.rotate(0, 0, -0.1); }
-                    view_up = tmp.apply(view_up);
-                }
-
-            }
-
-            std::cout << "values: " << (char) obj << ' ' << (char) op << ' ' << coord << std::endl;
-            // cat /usr/include/X11/keysymdef.h | less
-
-
-            color.set_rgb(255, 255, 255);
-            img.clear(color);
-            XClearWindow(display,window);
-
-            color.set_rgb(0, 0, 0);
-            img.set_color(color);
-
-            m.identity();
-            m.camera(eye, gaze, view_up);
-            //m.perp(Fixed(-10.0), Fixed(-100.0));
-//            m.orthographic(20.0, -20.0, 15.0, -15.0, -10, -100);
-//            m.orthographic(16.0, -16.0, 12.0, -12.0, -10, -100);
-            //m.orthographic(-20.0, 20.0, -15.0, 15.0, -10, -100);
-            m.perspective(Fixed(3.141592/mfov), (Fixed(640.0) / Fixed(480.0)), Fixed(-0.1), Fixed(-20.0));
-
-
-            color.set_rgb(0, 255, 255);
-            img.set_color(color);
-            std::cout << "1vec\n";
-            img.draw_simple_line(X, w);
-            std::cout << "2vec\n";
-            m.print();
-            std::cout << "---\n";
-            m.viewport(640, 480);
-            m.print();
-            X.print();
-            m.apply(X).print();
-            m.apply(Y).print();
-            m.apply(Z).print();
-            img.draw_simple_line(m.apply(X), m.apply(w));
-            std::cout << "3vec\n";
-
-            color.set_rgb(0, 255, 0);
-            img.set_color(color);
-            img.draw_simple_line(Y, w);
-            img.draw_simple_line(m.apply(Y), m.apply(w));
-
-            color.set_rgb(0, 0, 255);
-            img.set_color(color);
-            img.draw_simple_line(Z, w);
-            img.draw_simple_line(m.apply(Z), m.apply(w));
-
-            color.set_rgb(0, 0, 0);
-            img.set_color(color);
-            draw_cube(m, img, 1.1);
-            draw_spin_cube(img, 1.1);
-            objs.draw_objs(m, img);
-
-            img.render_to_X(display, window, s);
-            std::cout << "herez\n";
-            std::cout << "eye: " << eye[0].to_float() << ' ' << eye[1].to_float() << ' ' << eye[2].to_float() << endl;
-            std::cout << "gaze: " << gaze[0].to_float() << ' ' << gaze[1].to_float() << ' ' << gaze[2].to_float() << endl;
-            std::cout << "up: " << view_up[0].to_float() << ' ' << view_up[1].to_float() << ' ' << view_up[2].to_float() << endl;
-
-            XFlush(display);
-//            break;
+        while (SDL_PollEvent(&event)) {
+            handle_event(event);
         }
 
-        usleep(50000);
+        color.set_rgb(255, 255, 255);
+        img.clear(color);
+        apply_transformations();
+        draw_axis();
+        objs.draw_objs2(m, img);
+        render_to_sdl();
 
+        usleep(1000 * 50);
     }
  
     /* close connection to server */
-
-    XCloseDisplay(display);
-
+    SDL_Quit();
     img.save("imagem.ppm");
     
     return 0;

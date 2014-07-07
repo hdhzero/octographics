@@ -2,7 +2,7 @@
 #define OCTOGRAPHICS_FIXED_H
 
 #include "OctoGraphics.h"
-//#define OC_USEFLOAT 1
+#define OC_USEFLOAT 1
 
 namespace OctoGraphics {
 

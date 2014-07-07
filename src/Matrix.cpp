@@ -48,6 +48,13 @@ Vertex Matrix::apply(const Vertex& vertex) const {
         }
     }
 
+    if (tmp[3].to_float() != 1.0) {
+        tmp[0] = tmp[0] / tmp[3];
+        tmp[1] = tmp[1] / tmp[3];
+        tmp[2] = tmp[2] / tmp[3];
+        tmp[3] = tmp[3] / tmp[3];
+    }
+
     return tmp;
 }
 
@@ -119,11 +126,21 @@ void Matrix::rotate(Fixed x, Fixed y, Fixed z) {
 void Matrix::viewport(int width, int height) {
     Fixed tmp[4][4];
 
+/*
     set_identity(tmp);
     tmp[0][0] = Fixed((float) width) / Fixed(2.0);
     tmp[1][1] = Fixed((float) height) / Fixed(2.0);
     tmp[0][3] = Fixed(width - 1.0) / Fixed(2.0);
     tmp[1][3] = Fixed((height - 1.0)) / Fixed(2.0);
+*/
+
+    set_identity(tmp);
+    tmp[0][0] = Fixed((float) width) / Fixed(2.0);
+    tmp[1][1] = Fixed((float) height) / Fixed(2.0);
+    tmp[2][2] = Fixed(0.5f);
+    tmp[0][3] = Fixed(width * 0.5f);
+    tmp[1][3] = Fixed(height * 0.5f);
+    tmp[2][3] = Fixed(0.5f);
 
     multiply(tmp);
 }

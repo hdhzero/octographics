@@ -18,10 +18,11 @@ int Color::get_alpha() {
     return alpha; 
 }
 
-void Color::set_rgb(int r, int g, int b) {
+void Color::set_rgb(int r, int g, int b, int a) {
     red = r;
     green = g;
     blue = b;
+    alpha = a;
 }
 
 void Color::set_color(Color& c) {

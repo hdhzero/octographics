@@ -11,9 +11,11 @@ void Image::alloc(int w, int h) {
     height = h;
 
     drawing.resize(height);
+    depth_buffer.resize(height);
 
     for (int i = 0; i < height; ++i) {
         drawing[i].resize(width);
+        depth_buffer[i].resize(width);
     }
 }
 
@@ -32,6 +34,21 @@ void Image::draw_point(int x, int y, Color& c) {
     set_pixel(y, x, c);
 }
 
+void Image::draw_point(Vertex& v, Color& c) {
+    int x = v[0].to_float();
+    int y = v[1].to_float();
+
+    if (!(x >= 0 && x < width && y >= 0 && y < height)) return;
+
+    if (depth_buffer[y][x].to_float() < v[2].to_float()) {
+        return;
+    }
+
+    depth_buffer[y][x] = v[2];
+
+    draw_point(x, y, c);
+}
+
 void Image::set_color(Color& c) {
     color = c;
 }
@@ -40,6 +57,7 @@ void Image::clear(Color& c) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             drawing[i][j].set_color(c);
+            depth_buffer[i][j] = Fixed(11000.0);
         }
     }
 }
@@ -248,9 +266,24 @@ void Image::draw_simple_line(const Vertex& v1, const Vertex& v2) {
 void Image::render_to_X(Display*& display, Window& drawable, int s) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
-            if (drawing[i][j].get_red() == 0) {
+            if (drawing[i][j].get_red() != 255) {
                 XDrawPoint(display, drawable, DefaultGC(display, s), j, i);
             }
+        }
+    }
+}
+
+void Image::render_to_SDL(uint32_t* framebuffer) {
+    int r, g, b, a;
+
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            r = drawing[i][j].get_red();
+            g = drawing[i][j].get_green();
+            b = drawing[i][j].get_blue();
+            a = drawing[i][j].get_alpha();
+
+            framebuffer[i * width + j] = (a << 24) | (r << 16) | (g << 8) | b;
         }
     }
 }

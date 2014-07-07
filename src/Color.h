@@ -15,7 +15,7 @@ class Color {
         int get_green();
         int get_blue();
         int get_alpha();
-        void set_rgb(int r, int g, int b);
+        void set_rgb(int r, int g, int b, int a = 255);
         void set_color(Color& c);
 };
 
